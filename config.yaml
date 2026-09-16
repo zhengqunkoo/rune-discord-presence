@@ -1,0 +1,5 @@
+requirements:
+  - go
+extensions:
+  rune-discord-presence:
+    path: '$RUNE_DATADIR/lib/$RUNE_PKG_ID'
