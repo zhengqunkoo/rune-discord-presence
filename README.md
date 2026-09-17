@@ -1,5 +1,7 @@
 # Rune Discord Presence
 
+<img width="734" height="310" alt="rune-discord-presence" src="https://github.com/user-attachments/assets/a8644f7f-ff1f-4ec6-a467-6d58beaa2537" />
+
 Discord Rich Presence extension for [Rune](https://rune.build)
 
 ## Install
