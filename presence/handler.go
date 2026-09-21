@@ -19,7 +19,7 @@ type EventHandler struct {
 func (h *EventHandler) Handle(ctx context.Context, ev textapi.Event) bool {
 	switch ev.Type {
 	case textapi.EventTypeOpen, textapi.EventTypeFocus:
-		log.Printf("focused on: %s", ev.URI.Name())
+		log.Printf("focused on: %s", ev.URI.Path())
 		h.Pres.SetActive(ev.URI)
 	case textapi.EventTypeUnfocus:
 		// The editor lost focus entirely (user in file manager, console,
