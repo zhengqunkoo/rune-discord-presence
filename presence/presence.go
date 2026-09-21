@@ -88,8 +88,8 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 		log.Printf("rune-discord-presence: set activity: error expanding path: %v", err)
 		return
 	}
-	log.Printf("rune-discord-presence: set activity: p.workspace: %v", p.workspace)
-	log.Printf("rune-discord-presence: set activity: absPathURI: %v", absPathURI)
+	log.Printf("rune-discord-presence: set activity: p.workspace: %s", p.workspace)
+	log.Printf("rune-discord-presence: set activity: absPathURI: %s", absPathURI)
 	path := workspaceapi.RelPath(p.workspace, absPathURI)
 	
 	if p.hasActive && p.activePath() == path {
