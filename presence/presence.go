@@ -71,7 +71,7 @@ func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (workspaceapi
 	fs := ws.FileSystem(ctx)
 	cwd, err := fs.URI(".")
 	if err != nil {
-		return "", err
+		return workspaceapi.URI{}, err
 	}
 
 	return cwd, nil
@@ -83,7 +83,7 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	defer p.mu.Unlock()
 	
 	// Expand to absolute URI before deriving the workspace-relative path.
-	absPathURI, err := ExpandWith(uri.Path(), p.workspace)
+	absPathURI, err := workspaceapi.ExpandWith(uri.Path(), p.workspace)
 	if err != "" {
 		log.Printf("set activity: error expanding path: %v", err)
 		return
@@ -92,7 +92,7 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	log.Printf("set activity: abs path: %s", absPathURI)
 	log.Printf("set activity: rel path: %s", path)
 	
-	if p.hasActive && p.activePath() == path {
+	if p.hasActive && p.activePath == path {
 		return
 	}
 	p.activePath = path
