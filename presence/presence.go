@@ -142,7 +142,7 @@ func (p *Presence) push() {
 
 	if p.hasActive {
 		path := p.activeURI.Path()
-		activity.Details = fmt.Sprintf("Editing %s", filepath.Base(path))
+		activity.Details = fmt.Sprintf("Editing %s", path)
 		activity.LargeImage = fileIcon(path)
 	} else {
 		activity.Details = "Idle"
