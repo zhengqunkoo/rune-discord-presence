@@ -81,10 +81,30 @@ func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (string, erro
 func (p *Presence) SetActive(uri workspaceapi.URI) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	if p.hasActive && p.activeURI.Path() == uri.Path() {
+
+	path := uri.Path()
+	base := uri
+	for base.Name() != p.workspaceName {
+		next := workspaceapi.Dir(base)
+		if next.Path() == base.Path() {
+			base = workspaceapi.URI{}
+			break
+		}
+		base = next
+	}
+	if base.Path() != "" {
+		path = workspaceapi.RelPath(base, uri)
+	}
+
+	normalized := uri
+	if normalizedURI, err := workspaceapi.WithPath(uri, path); err == nil {
+		normalized = normalizedURI
+	}
+
+	if p.hasActive && p.activeURI.Path() == normalized.Path() {
 		return
 	}
-	p.activeURI = uri
+	p.activeURI = normalized
 	p.hasActive = true
 	p.scheduleUpdate()
 }
