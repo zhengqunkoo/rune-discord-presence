@@ -83,19 +83,20 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	defer p.mu.Unlock()
 	
 	// Expand to absolute URI before deriving the workspace-relative path.
-	absPathURI, err := workspaceapi.ExpandPathWithURI(uri.Path(), p.workspace)
-	if err != "" {
+	absPath, err := workspaceapi.ExpandPathWithURI(uri.Path(), p.workspace)
+	if err != nil {
 		log.Printf("set activity: error expanding path: %v", err)
 		return
 	}
-	path := workspaceapi.RelPath(p.workspace, absPathURI)
-	log.Printf("set activity: abs path: %s", absPathURI)
-	log.Printf("set activity: rel path: %s", path)
+	absPathURI := workspaceapi.ParseURI(absPath)
+	relPath := workspaceapi.RelPath(p.workspace, absPathURI)
+	log.Printf("set activity: abs path: %s", absPathURI.Path())
+	log.Printf("set activity: rel path: %s", relPath)
 	
-	if p.hasActive && p.activePath == path {
+	if p.hasActive && p.activePath == relPath {
 		return
 	}
-	p.activePath = path
+	p.activePath = relPath
 	p.hasActive = true
 	p.scheduleUpdate()
 }
