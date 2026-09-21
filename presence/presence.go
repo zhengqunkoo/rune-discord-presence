@@ -32,8 +32,8 @@ type Presence struct {
 	// Workspace info (set once at startup).
 	workspaceName string
 
-	// Current editor state. URI is a value type; the zero URI is "none".
-	activeURI workspaceapi.URI
+	// Current editor state.
+	activePath string
 	hasActive bool
 	pendTimer *time.Timer
 
@@ -81,10 +81,19 @@ func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (string, erro
 func (p *Presence) SetActive(uri workspaceapi.URI) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	if p.hasActive && p.activeURI.Path() == uri.Path() {
+	
+	// `absPath` is the full path, subtract the workspace path from it
+	absPath, err := ExpandPathWithURI(uri.Path(), uri)
+	if err != "" {
+		log.Printf("rune-discord-presence: set activity: error expanding path: %v", err)
 		return
 	}
-	p.activeURI = uri
+	path := workspaceapi.RelPath(p.workspaceName, absPath)
+	
+	if p.hasActive && p.activePath() == path {
+		return
+	}
+	p.activePath = path
 	p.hasActive = true
 	p.scheduleUpdate()
 }
@@ -115,7 +124,7 @@ func (p *Presence) SetIdle() {
 	if !p.hasActive {
 		return
 	}
-	p.activeURI = workspaceapi.URI{}
+	p.activePath = ""
 	p.hasActive = false
 	p.scheduleUpdate()
 }
@@ -141,7 +150,7 @@ func (p *Presence) push() {
 	}
 
 	if p.hasActive {
-		path := p.activeURI.Path()
+		path := p.activePath
 		activity.Details = fmt.Sprintf("Editing %s", path)
 		activity.LargeImage = fileIcon(path)
 	} else {
