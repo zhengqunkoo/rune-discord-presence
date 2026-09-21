@@ -79,12 +79,10 @@ func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (string, erro
 
 // SetActive marks a file as the one currently focused.
 func (p *Presence) SetActive(uri workspaceapi.URI) {
-	log.Printf("rune-discord-presence: set activity: log 1")
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	
 	// `absPath` is the full path, subtract the workspace path from it
-	log.Printf("rune-discord-presence: set activity: log 2")
 	absPathURI, err := CurrentUserHostURI(uri.Path())
 	if err != "" {
 		log.Printf("rune-discord-presence: set activity: error expanding path: %v", err)
@@ -97,7 +95,6 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	if p.hasActive && p.activePath() == path {
 		return
 	}
-	log.Printf("rune-discord-presence: set activity: log 3")
 	p.activePath = path
 	p.hasActive = true
 	p.scheduleUpdate()
