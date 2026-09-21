@@ -67,7 +67,7 @@ func New(ctx context.Context, ws *extensionapi.Workspace) (*Presence, error) {
 }
 
 // wsSchemeRoot resolves the workspace root via the workspace scheme API.
-func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (string, error) {
+func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (workspaceapi.URI, error) {
 	fs := ws.FileSystem(ctx)
 	cwd, err := fs.URI(".")
 	if err != nil {
