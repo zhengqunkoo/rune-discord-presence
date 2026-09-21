@@ -30,7 +30,7 @@ type Presence struct {
 	mu sync.Mutex
 
 	// Workspace info (set once at startup).
-	workspaceName string
+	workspace workspaceapi.URI
 
 	// Current editor state.
 	activePath string
@@ -58,8 +58,8 @@ func New(ctx context.Context, ws *extensionapi.Workspace) (*Presence, error) {
 	}
 
 	p := &Presence{
-		workspaceName: filepath.Base(root),
-		startedAt:     time.Now(),
+		workspace: root,
+		startedAt: time.Now(),
 	}
 
 	p.push() // initial presence: workspace + branch, no file yet
@@ -74,7 +74,7 @@ func wsSchemeRoot(ctx context.Context, ws *extensionapi.Workspace) (string, erro
 		return "", err
 	}
 
-	return cwd.Name(), nil
+	return cwd, nil
 }
 
 // SetActive marks a file as the one currently focused.
@@ -88,7 +88,9 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 		log.Printf("rune-discord-presence: set activity: error expanding path: %v", err)
 		return
 	}
-	path := workspaceapi.RelPath(p.workspaceName, absPathURI)
+	log.Printf("rune-discord-presence: set activity: p.workspace: %v", p.workspace)
+	log.Printf("rune-discord-presence: set activity: absPathURI: %v", absPathURI)
+	path := workspaceapi.RelPath(p.workspace, absPathURI)
 	
 	if p.hasActive && p.activePath() == path {
 		return
@@ -141,7 +143,7 @@ func (p *Presence) push() {
 	}
 
 	activity := client.Activity{
-		State:      fmt.Sprintf("Workspace: %s", p.workspaceName),
+		State:      fmt.Sprintf("Workspace: %s", filepath.Base(p.workspace.Name())),
 		SmallImage: runeLogoURL(),
 		SmallText:  "Rune Editor",
 		Timestamps: &client.Timestamps{
