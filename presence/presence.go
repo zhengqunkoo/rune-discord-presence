@@ -83,11 +83,21 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	defer p.mu.Unlock()
 	
 	// Expand to absolute URI before deriving the workspace-relative path.
+	log.Printf("set activity: uri path: %s", uri.Path())
 	absPath, err := workspaceapi.ExpandPathWithURI(uri.Path(), p.workspace)
 	if err != nil {
 		log.Printf("set activity: error expanding path: %v", err)
 		return
 	}
+	// workspaceapi.ExpandPathWithURI docstring says: "If path is already absolute then this function returns the path unchanged."
+	// Check whether ExpandPathWithURI returned input unchanged
+	// This can happen when the user is editing a file outside of the workspace,
+	// e.g. `~/.rune/config.yaml`. In this case we don't set the activity at all.
+	// In other words, only files in the workspace can be set in the activity.
+	if absPath == uri.Path() {
+		return
+	}
+	// Add URI schema to absPath.
 	absPathURI, err := workspaceapi.CurrentUserHostURI(absPath)
 	if err != nil {
 		log.Printf("set activity: error parsing path: %v", err)
