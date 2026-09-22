@@ -83,11 +83,13 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	defer p.mu.Unlock()
 	
 	// Expand to absolute URI before deriving the workspace-relative path.
-	if absPath, err := workspaceapi.ExpandPathWithURI(uri.Path(), p.workspace); err != nil {
+	absPath, err := workspaceapi.ExpandPathWithURI(uri.Path(), p.workspace)
+	if err != nil {
 		log.Printf("set activity: error expanding path: %v", err)
 		return
 	}
-	if absPathURI, err := workspaceapi.ParseURI(absPath); err != nil {
+	absPathURI, err := workspaceapi.ParseURI(absPath)
+	if err != nil {
 		log.Printf("set activity: error parsing path: %v", err)
 		return
 	}
