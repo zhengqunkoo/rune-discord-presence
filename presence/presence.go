@@ -83,29 +83,31 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	defer p.mu.Unlock()
 	
 	// Expand to absolute URI before deriving the workspace-relative path.
-	log.Printf("set activity: uri path: %s", uri.Path())
+	//log.Printf("set activity: uri path: %s", uri.Path())
 	absPath, err := workspaceapi.ExpandPathWithURI(uri.Path(), p.workspace)
 	if err != nil {
 		log.Printf("set activity: error expanding path: %v", err)
 		return
 	}
-	// workspaceapi.ExpandPathWithURI docstring says: "If path is already absolute then this function returns the path unchanged."
-	// Check whether ExpandPathWithURI returned input unchanged
-	// This can happen when the user is editing a file outside of the workspace,
-	// e.g. `~/.rune/config.yaml`. In this case we don't set the activity at all.
-	// In other words, only files in the workspace can be set in the activity.
-	if absPath == uri.Path() {
-		return
-	}
+	//log.Printf("set activity: abs path: %s", absPath)
 	// Add URI schema to absPath.
 	absPathURI, err := workspaceapi.CurrentUserHostURI(absPath)
 	if err != nil {
 		log.Printf("set activity: error parsing path: %v", err)
 		return
 	}
-	log.Printf("set activity: abs path: %s", absPathURI.Path())
+	//log.Printf("set activity: abs path URI: %v", absPathURI)
 	relPath := workspaceapi.RelPath(p.workspace, absPathURI)
-	log.Printf("set activity: rel path: %s", relPath)
+	//log.Printf("set activity: rel path: %s", relPath)
+	
+	// workspaceapi.RelPath docstring says: "returns target's path as a relative path of base, or if that's not possible, it will return target's Path without change.."
+	// Check whether RelPath returned input unchanged, this can happen when
+	// the user is editing a file outside of the workspace, e.g. `~/.rune/config.yaml`.
+	// In this case we don't set the activity at all.
+	// In other words, only files in the workspace can be set in the activity.
+	if relPath == absPathURI.Path() {
+		return
+	}
 	
 	if p.hasActive && p.activePath == relPath {
 		return
