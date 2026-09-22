@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/url"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -94,7 +95,7 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 		log.Printf("set activity: url parse: %v", err)
 		return
 	}
-	absPathURI, err := workspaceapi.makeFileURI(u)
+	absPathURI, err := makeFileURI(u)
 	if err != nil {
 		log.Printf("set activity: error parsing path: %v", err)
 		return
@@ -109,6 +110,33 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	p.activePath = relPath
 	p.hasActive = true
 	p.scheduleUpdate()
+}
+
+func makeFileURI(u *url.URL) (URI, error) {
+	path := sanitizeFilePath(u.Path)
+	u.Path = path
+	if u.Scheme == "" {
+		return workspaceapi.URI{}, fmt.Errorf("invalid empty scheme %#v", u)
+	}
+	return workspaceapi.URI{uri: u.String(), parsed: *u, name: filepath.Base(path)}, nil
+}
+
+func sanitizeFilePath(resource string) string {
+	resource = filepath.Clean(resource)
+	return sanitizeLine(resource)
+}
+
+func sanitizeLine(in string) string {
+	var b strings.Builder
+	for _, r := range in {
+		switch r {
+		case '\x00':
+		case '\n':
+		default:
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 // Close clears presence when the extension shuts down.
