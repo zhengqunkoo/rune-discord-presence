@@ -91,7 +91,8 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 	}
 	u, err := url.Parse(absPath)
 	if err != nil {
-		return URI{}, fmt.Errorf("url parse: %s", err)
+		log.Printf("set activity: url parse: %v", err)
+		return
 	}
 	absPathURI, err := workspaceapi.makeFileURI(u)
 	if err != nil {
