@@ -88,7 +88,7 @@ func (p *Presence) SetActive(uri workspaceapi.URI) {
 		log.Printf("set activity: error expanding path: %v", err)
 		return
 	}
-	absPathURI, err := workspaceapi.ParseURI(absPath)
+	absPathURI, err := workspaceapi.makeFileURI(absPath)
 	if err != nil {
 		log.Printf("set activity: error parsing path: %v", err)
 		return
