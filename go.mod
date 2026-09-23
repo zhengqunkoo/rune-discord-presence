@@ -3,7 +3,7 @@ module github.com/ravener/rune-discord-presence
 go 1.25.6
 
 require (
-	github.com/hugolgst/rich-go v0.0.0-20240715122152-74618cc1ace2
+	github.com/hugolgst/rich-go v0.0.0-20250525222940-d0776359a481
 	github.com/unstablebuild/rune-go-sdk v0.2.0
 )
 
@@ -32,3 +32,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/hugolgst/rich-go => github.com/notwithering/rich-go v0.0.0-20250525222940-d0776359a481
